@@ -250,9 +250,9 @@ namespace RestClient
                 return mag;
             }
 
-            List<Object> GetSubscribers(string token)
+            List<JObject> GetSubscribers(string token)
             {
-                List<Object> mag = null;
+                List<JObject> mag = null;
                 string URL = "http://magazinestore.azurewebsites.net/api/subscribers/" + token;
                 string urlParameters = "";
                 HttpClient client = new HttpClient();
@@ -273,7 +273,7 @@ namespace RestClient
                     {
                         JObject r = JObject.Parse(jsonString);
                         JToken jt = r.GetValue("data");
-                        mag = jt.ToObject<List<Object>>();
+                        mag = jt.ToObject<List<JObject>>();
                         //Console.WriteLine(cat);
 
                     }
@@ -327,13 +327,17 @@ namespace RestClient
                     }
                 }
                 mmm = "";
-                List<Object> subs = p.GetSubscribers(tk);
-                foreach (Object sub in subs)
+                List<JObject> subs = p.GetSubscribers(tk);
+                foreach (JObject sub in subs)
                 {
-                    Console.WriteLine("sub: " + sub.ToString());
-                    mmm = mmm + sub.ToString() + ", ";
+                    //Console.WriteLine("sub: " + sub.ToString());
+                    //string id = sub["id"];
+                    JToken jid = sub.GetValue("id");
+                    mmm = mmm + "\"" + jid.ToString() + "\"" + ", ";
                 }
                 Console.WriteLine("-------------------------------");
+                Console.WriteLine(mmm);
+
                 PostJSON.Answer(tk, mmm);
                 Console.WriteLine("Press any key to exit!");
                 Console.ReadLine();
