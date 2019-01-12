@@ -218,9 +218,9 @@ namespace RestClient
                 return cat;
             }
 
-            List<Object> GetMagazines(string token, string cat)
+            List<JObject> GetMagazines(string token, string cat)
             {
-                List<Object> mag = null;
+                List<JObject> mag = null;
                 string URL = "http://magazinestore.azurewebsites.net/api/magazines/" + token + "/" + cat;
                 string urlParameters = "";
                 HttpClient client = new HttpClient();
@@ -241,7 +241,7 @@ namespace RestClient
                     {
                         JObject r = JObject.Parse(jsonString);
                         JToken jt = r.GetValue("data");
-                        mag = jt.ToObject<List<Object>>();
+                        mag = jt.ToObject<List<JObject>>();
                         //Console.WriteLine(cat);
 
                     }
@@ -319,22 +319,23 @@ namespace RestClient
                 foreach (string c in cat)
                 {
                     Console.WriteLine("cat: " + c);
-                    List<Object> mag = p.GetMagazines(tk, c);
-                    foreach (Object m in mag)
+                    List<JObject> mag = p.GetMagazines(tk, c);
+                    foreach (JObject m in mag)
                     {
                         Console.WriteLine("mag: " + m.ToString());
-                        mmm = mmm + m.ToString();
+                        JToken jmagid = m.GetValue("id");
+                        //mmm = mmm + m.ToString();
                     }
                 }
                 mmm = "";
                 List<JObject> subs = p.GetSubscribers(tk);
                 foreach (JObject sub in subs)
                 {
-                    //Console.WriteLine("sub: " + sub.ToString());
-                    //string id = sub["id"];
+                    Console.WriteLine(sub.ToString());
                     JToken jid = sub.GetValue("id");
-                    mmm = mmm + "\"" + jid.ToString() + "\"" + ", ";
+                    mmm = "\"" + jid.ToString() + "\"" + "," + mmm;
                 }
+                mmm = mmm.Remove(mmm.Length - 1);
                 Console.WriteLine("-------------------------------");
                 Console.WriteLine(mmm);
 
