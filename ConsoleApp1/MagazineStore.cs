@@ -6,6 +6,8 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using MagazineStoreApp;
 
 namespace RestClient
 {
@@ -124,7 +126,7 @@ namespace RestClient
 
         public static class PostJSON
         {
-            public static void Answer(string token, string mmm)
+            public static string Answer(string token, string mmm)
             {
                 string URL = "http://magazinestore.azurewebsites.net/api/answer/" + token;
                 Console.WriteLine(URL);
@@ -134,7 +136,7 @@ namespace RestClient
 
                 using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                 {
-                    string json = "{\"subscribers\": [ " + mmm + " ] }";
+                    string json = "{\"subscribers\": " + mmm + "}";
                     Console.WriteLine("json: " + json);
                     streamWriter.Write(json);
                     streamWriter.Flush();
@@ -148,6 +150,13 @@ namespace RestClient
                 {
                     var result = streamReader.ReadToEnd();
                     Console.WriteLine("result: " + result.ToString());
+                    Response r =    JsonConvert.DeserializeObject<Response>(result.ToString());
+                    if (r.success == false)
+                    {
+                        Answer answer = new Answer { subscribers = r.data.shouldBe };
+                        return JsonConvert.SerializeObject(answer.subscribers).ToString();
+                    } else
+                        return "";
                 }
             }
         }
@@ -339,7 +348,9 @@ namespace RestClient
                 Console.WriteLine("-------------------------------");
                 Console.WriteLine(mmm);
 
-                PostJSON.Answer(tk, mmm);
+                string r1 = PostJSON.Answer(tk, "[" + mmm + "]");
+                //string r2 = JsonConvert.SerializeObject(r1);
+                PostJSON.Answer(tk, r1);
                 Console.WriteLine("Press any key to exit!");
                 Console.ReadLine();
             }
